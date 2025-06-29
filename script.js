@@ -1,25 +1,47 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const themeToggle = document.getElementById('themeToggle');
     const body = document.body;
-    const themeIcon = themeToggle.querySelector('i');
-    
     const savedTheme = localStorage.getItem('theme');
+    
     if (savedTheme === 'light') {
         body.classList.add('light-theme');
-        themeIcon.classList.replace('fa-moon', 'fa-sun');
+        document.querySelector('#themeToggle i')?.classList.replace('fa-moon', 'fa-sun');
     }
     
-    themeToggle.addEventListener('click', function() {
-        body.classList.toggle('light-theme');
+    const footer = document.querySelector('.footer');
+    if (footer) {
+        footer.style.display = 'block';
+        footer.style.visibility = 'visible';
+        footer.style.opacity = '1';
+    }
+    
+    if (typeof AOS !== 'undefined') {
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    
+    if (themeToggle) {
+        const themeIcon = themeToggle.querySelector('i');
         
-        if (body.classList.contains('light-theme')) {
-            themeIcon.classList.replace('fa-moon', 'fa-sun');
-            localStorage.setItem('theme', 'light');
-        } else {
-            themeIcon.classList.replace('fa-sun', 'fa-moon');
-            localStorage.setItem('theme', 'dark');
-        }
-    });
+        themeToggle.addEventListener('click', function() {
+            body.classList.toggle('light-theme');
+            
+            if (themeIcon) {
+                if (body.classList.contains('light-theme')) {
+                    themeIcon.classList.replace('fa-moon', 'fa-sun');
+                    localStorage.setItem('theme', 'light');
+                } else {
+                    themeIcon.classList.replace('fa-sun', 'fa-moon');
+                    localStorage.setItem('theme', 'dark');
+                }
+            } else {
+                localStorage.setItem('theme', body.classList.contains('light-theme') ? 'light' : 'dark');
+            }
+        });
+    }
     
     const sections = document.querySelectorAll('.section');
     
@@ -35,26 +57,43 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    checkSections();
-    
+    setTimeout(checkSections, 100);
     window.addEventListener('scroll', checkSections);
     
     const scrollTopBtn = document.getElementById('scrollTop');
     
-    window.addEventListener('scroll', function() {
-        if (window.pageYOffset > 300) {
-            scrollTopBtn.classList.add('show');
-        } else {
-            scrollTopBtn.classList.remove('show');
-        }
-    });
-    
-    scrollTopBtn.addEventListener('click', function() {
-        window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
+    if (scrollTopBtn) {
+        window.addEventListener('scroll', function() {
+            if (window.pageYOffset > 300) {
+                scrollTopBtn.classList.add('show');
+                scrollTopBtn.classList.add('animated');
+            } else {
+                scrollTopBtn.classList.remove('show');
+                scrollTopBtn.classList.remove('animated');
+            }
         });
-    });
+        
+        scrollTopBtn.addEventListener('click', function() {
+            this.classList.add('clicked');
+            
+            setTimeout(() => {
+                this.classList.remove('clicked');
+            }, 300);
+            
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+        
+        scrollTopBtn.addEventListener('mouseenter', function() {
+            this.classList.add('hover');
+        });
+        
+        scrollTopBtn.addEventListener('mouseleave', function() {
+            this.classList.remove('hover');
+        });
+    }
     
     const skillBars = document.querySelectorAll('.skill-progress');
     
@@ -71,7 +110,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     animateSkillBars();
-    
     window.addEventListener('scroll', animateSkillBars);
     
     const contactForm = document.getElementById('contactForm');
@@ -103,10 +141,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const feedback = document.createElement('div');
                 feedback.className = 'form-feedback success';
-                feedback.textContent = 'Your message was sent successfully!';
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> Your message was sent successfully!';
                 
                 contactForm.after(feedback);
-                
                 contactForm.reset();
                 
                 setTimeout(() => {
@@ -118,7 +155,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 const feedback = document.createElement('div');
                 feedback.className = 'form-feedback error';
-                feedback.textContent = 'There was an error sending your message. Please try again.';
+                feedback.innerHTML = '<i class="fas fa-exclamation-circle"></i> There was an error sending your message. Please try again.';
                 
                 contactForm.after(feedback);
                 
@@ -167,5 +204,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
         });
+    });
+    
+    document.querySelectorAll('.terminal-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const container = this.closest('.terminal-container');
+            
+            if (this.classList.contains('close')) {
+                container.style.display = 'none';
+            } else if (this.classList.contains('minimize')) {
+                const content = container.querySelector('.terminal-content');
+                if (content.style.display !== 'none') {
+                    content.style.display = 'none';
+                } else {
+                    content.style.display = 'block';
+                }
+            } else if (this.classList.contains('maximize')) {
+                if (!container.classList.contains('maximized')) {
+                    container.classList.add('maximized');
+                    container.style.position = 'fixed';
+                    container.style.top = '50%';
+                    container.style.left = '50%';
+                    container.style.transform = 'translate(-50%, -50%)';
+                    container.style.width = '80%';
+                    container.style.height = '80%';
+                    container.style.zIndex = '9999';
+                } else {
+                    container.classList.remove('maximized');
+                    container.style.position = '';
+                    container.style.top = '';
+                    container.style.left = '';
+                    container.style.transform = '';
+                    container.style.width = '';
+                    container.style.height = '';
+                    container.style.zIndex = '';
+                }
+            }
+        });
+    });
+    
+    document.querySelectorAll('.project-link, button[type="submit"]').forEach(button => {
+        button.classList.add('btn-3d');
     });
 });
